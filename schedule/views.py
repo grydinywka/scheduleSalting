@@ -1,3 +1,6 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 
-# Create your views here.
+def salting_list(request):
+    return render(request, 'schedule/index.html', {})
+
