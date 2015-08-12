@@ -18,6 +18,7 @@ from django.contrib import admin
 
 urlpatterns = patterns('',
     url(r'^$', 'schedule.views.salting_list', name="home"),
+    url(r'^salting/add/$', 'schedule.views.salting_add', name="salting_add"),
 
     url(r'^admin/', include(admin.site.urls)),
 )

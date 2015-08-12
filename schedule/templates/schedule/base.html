@@ -1,0 +1,107 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="uk">
+
+	<head>
+		<meta charset="UTF-8"/>
+		<title>Система контролю соління риби! - {% block meta_title %}{% endblock meta_title %}</title>
+		<meta name="description"
+			  value="Система контролю соління риби." />
+
+		<!-- Style Section -->
+		<link rel="stylesheet"
+			  href="https://cdn.jsdelivr.net/bootstrap/3.3.0/css/bootstrap.min.css" >
+		<link rel="stylesheet" href="{{ PORTAL_URL2 }}{% static "css/main.css" %}" />
+		{% block extra_css %}{% endblock extra_css %}
+	</head>
+	<body>
+		<!-- Start Container -->
+		<div class="container">
+
+			<!-- Start Header -->
+			<div class="row" id="header">
+
+				<!-- Logo -->
+				<div class="col-xs-8">
+					{% block logo %}
+					<h1>Сервіс Контролю Соління Риби</h1>
+					{% endblock logo %}
+				</div>
+
+			</div>
+			<!-- End Header -->
+
+			<!-- Start SubHeader -->
+			<div class="row" id="sub-header">
+				<div class="col-xs-12">
+					<ul class="nav nav-tabs" role="tablist">
+
+						<li role="presentation" {% url 'home' as the_url_home %}{% if request.path == the_url_home %}class="active"{% endif %}>
+							<a href="{% url "home" %}">Графік</a>
+						</li>
+						<li role="presentation"><a href="#">Розсилка</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<!-- End SubHeader -->
+
+			<!-- Start Main Page Content -->
+			<div class="row" id="content-colomns">
+				<div class="col-xs-12" id="content-colomn">
+
+					<!-- Status Message -->
+					{% block status_message %}
+					{% if messages %}
+						{% for message in messages %}
+							<div class="alert alert-warning">
+								{{ message }}
+							</div>
+						{% endfor %}
+					{% endif %}
+					{% endblock %}
+				</div>
+			</div>
+
+			<div class="row">
+					<div class="col-xs-3"><h2 id="title">{% block title %}{% endblock title %}</h2></div>
+					{% block add_btn %}{% endblock add_btn %}
+					{% block data %}{% endblock data %}
+
+			</div>
+
+			<div class="row" id="content-colomn">
+				<div class="col-xs-12" id="content-colomn">
+					{% block content %}{% endblock content %}
+				</div>
+			</div>
+
+			<div class="row" id="content-colomn">
+				<div class="col-xs-12" id="content-colomn">
+					{% block nav %}{% endblock nav %}
+				</div>
+			</div>
+
+			<!-- End Main Page Content -->
+
+			<!-- Start Footer -->
+			<div class="row" id="footer">
+				<div class="col-xs-12">
+				{% block footer %}
+					&copy; 2015 Система контролю соління риби
+				{% endblock footer %}
+				</div>
+			</div>
+			<!-- End Footer -->
+
+		</div>
+		<!-- End Container -->
+
+		<!-- JavaScript Section -->
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
+		<script src="https://cdn.jsdelivr.net/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+		<script src="{% static 'js/main.js' %}"></script>
+		{% block extra_js %}{% endblock extra_js %}
+    </body>
+</html>

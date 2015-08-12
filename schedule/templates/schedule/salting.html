@@ -1,0 +1,75 @@
+{% extends "schedule/base.html" %}
+
+{% load static from staticfiles %}
+
+{% block meta_title %}Таблиця Засолу{% endblock meta_title %}
+
+{% block title %}База Засолу{% endblock title %}
+
+{% block add_btn %}
+<div class="col-xs-4" id="add_salting">
+	<!--  Add Student Button  -->
+	<a class="btn btn-primary" href="{% url "salting_add" %}">Додати Засолку</a>
+</div>
+{% endblock add_btn %}
+
+{% block content %}
+<table class="table table-hover table-striped">
+    <thead>
+        <tr>
+            <th>№ парті</th>
+            <th>Дата посолу</th>
+            <th>Риба</th>
+            <th>Потрібний час для засолу(днів)</th>
+            <th>Ємність №(бочка, ...)</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+	{% for salting in allSalt %}
+        <tr>
+            <td>{{ salting.id }}</td>
+            <td>{{ salting.date_salting }}</td>
+            <td>{{ salting.name_fish }}</td>
+            <td>{{ salting.required_salting }}</td>
+            <td>{{ salting.tank_salting }}</td>
+            <td>
+				<div class="dropdown">
+					<button class="btn btn-default dropdown-toggle"
+							type="button" data-toggle="dropdown">Дія
+						<span class="caret"></span>
+					</button>
+					<ul class="dropdown-menu" role="menu">
+						<li role="presentation">
+							<a role="menuitem" tabindex="-1" href="#">
+							Відвідування</a>
+						</li>
+					</ul>
+				</div>
+			</td>
+        </tr>
+	{% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock content %}
+
+{% block nav %}
+<nav>
+	<ul class="pagination">
+		<li>
+			<a href="{% url "home" %}?page=1">&laquo;</a>
+		</li>
+		{% for p in allSalt.paginator.page_range %}
+		<li {% if allSalt.number == p %}class="active"{% endif %}>
+			<a href="{% url "home" %}?page={{ p }}">{{ p }}</a>
+		</li>
+		{% endfor %}
+
+		<li>
+			<a href="{% url "home" %}?page={{ allSalt.paginator.num_pages }}">&raquo;</a>
+		</li>
+	</ul>
+</nav>
+{% endblock nav %}

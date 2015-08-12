@@ -1,0 +1,71 @@
+{% extends "schedule/base.html" %}
+
+{% load static from staticfiles %}
+
+{% block meta_title %}Додавання Засолу{% endblock meta_title %}
+
+{% block title %}Додати Засолку{% endblock title %}
+
+{% block content %}
+<!--Start Form-->
+<form action="#" method="post" role="form" class="form-horizontal">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="date_salting" class="col-sm-2 control-label">Дата посолу*</label>
+        <div class="col-sm-10">
+            <input type="text" value="" name="date_salting" id="date_salting" class="form-control"
+                    placeholder="E.g. 2015-07-23" />
+            <span class="help-block">{{ errors.date_salting }}</span>
+        </div>
+    </div>
+
+    <div class="form_group">
+        <label for="name_fish" class="col-sm-2 control-label">Назва риби(риб)*</label>
+        <div class="col-sm-10">
+            <input type="text" value="" name="name_fish" id="name_fish" class="form-control"
+                    placeholder="Name of fish" />
+            <span class="help-block">{{ errors.name_fish }}</span>
+        </div>
+    </div>
+
+    <div class="form_group">
+        <label for="required_salting" class="col-sm-2 control-label">Час на соління(днів)*</label>
+        <div class="col-sm-10">
+            <input type="text" value="" name="required_salting" id="required_salting" class="form-control"
+                    placeholder="10" />
+            <span class="help-block">{{ errors.required_salting }}</span>
+        </div>
+    </div>
+
+    <div class="form_group">
+        <label for="tank_salting" class="col-sm-2 control-label">Ємність і місце пос.*</label>
+        <div class="col-sm-10">
+            <input type="text" value="" name="tank_salting" id="tank_salting" class="form-control"
+                    placeholder="10" />
+            <span class="help-block">{{ errors.tank_salting }}</span>
+        </div>
+    </div>
+
+    <div class="form-group {% if errors.notes %}has-error{% endif %}">
+        <label for="notes" class="col-sm-2 control-label">Додаткові Нотатки*</label>
+        <div class="col-sm-10">
+            <textarea name="notes" id="notes" class="form-control"
+                      rows="2" placeholder="Напишіть те, що вважаєте за потрібне.">{{ request.POST.notes }}</textarea>
+            <span class="help-block">{{ errors.notes }}</span>
+        </div>
+    </div>
+
+    <div class="form_group">
+        <label class="col-sm-2 control-label"></label>
+        <div class="col-sm-10">
+            <input type="submit" value="Додати" name="add_button"
+                   class="btn btn-primary" />
+            <button type="submit" name="cancel_button"
+                    class="btn btn-link">Скасувати</button>
+        </div>
+    </div>
+</form>
+
+
+
+{% endblock content %}
