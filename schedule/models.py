@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from django.db import models
+import datetime
+
+def dec(mCls):
+    setattr(mCls, "date_removing", 15)
+    return mCls
 
 class Salting(models.Model):
     """Salting Model"""
@@ -18,7 +23,11 @@ class Salting(models.Model):
     name_fish = models.CharField(
         max_length=256,
         blank=False,
-        verbose_name=u'Назва риби(риб)'
+        verbose_name=u'Назва риби(риб)',
+        choices=(
+            ('Taran', 'Taran'),
+            ('Lyasch', 'Lyasch'),
+        )
     )
 
     required_salting = models.CharField(
@@ -38,5 +47,21 @@ class Salting(models.Model):
         verbose_name=u'Додаткові Нотатки'
     )
 
+    date_removing = models.DateField(
+        blank=True,
+        verbose_name=u'Дата виємки',
+        null=True)
+
+    weight = models.CharField(
+        max_length=256,
+        blank=True,
+        verbose_name=u'Кількість риби'
+    )
+
     def __unicode__(self):
         return u'%s, %s' % (self.date_salting, self.name_fish)
+
+    def save(self, *args, **kwargs):
+        deltaSalting = datetime.timedelta(days=int(self.required_salting))
+        self.date_removing = self.date_salting + deltaSalting
+        super(Salting, self).save(*args, **kwargs)

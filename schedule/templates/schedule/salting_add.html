@@ -10,12 +10,22 @@
 <!--Start Form-->
 <form action="#" method="post" role="form" class="form-horizontal">
     {% csrf_token %}
+
     <div class="form-group">
         <label for="date_salting" class="col-sm-2 control-label">Дата посолу*</label>
         <div class="col-sm-10">
             <input type="text" value="" name="date_salting" id="date_salting" class="form-control"
                     placeholder="E.g. 2015-07-23" />
             <span class="help-block">{{ errors.date_salting }}</span>
+        </div>
+    </div>
+
+    <div class="form_group">
+        <label for="tank_salting" class="col-sm-2 control-label">Ємність і місце пос.*</label>
+        <div class="col-sm-10">
+            <input type="text" value="" name="tank_salting" id="tank_salting" class="form-control"
+                    placeholder="basement" />
+            <span class="help-block">{{ errors.tank_salting }}</span>
         </div>
     </div>
 
@@ -37,14 +47,6 @@
         </div>
     </div>
 
-    <div class="form_group">
-        <label for="tank_salting" class="col-sm-2 control-label">Ємність і місце пос.*</label>
-        <div class="col-sm-10">
-            <input type="text" value="" name="tank_salting" id="tank_salting" class="form-control"
-                    placeholder="10" />
-            <span class="help-block">{{ errors.tank_salting }}</span>
-        </div>
-    </div>
 
     <div class="form-group {% if errors.notes %}has-error{% endif %}">
         <label for="notes" class="col-sm-2 control-label">Додаткові Нотатки*</label>
@@ -52,6 +54,16 @@
             <textarea name="notes" id="notes" class="form-control"
                       rows="2" placeholder="Напишіть те, що вважаєте за потрібне.">{{ request.POST.notes }}</textarea>
             <span class="help-block">{{ errors.notes }}</span>
+        </div>
+    </div>
+
+
+    <div class="form-group">
+        <label for="weight" class="col-sm-2 control-label">Кількість риби</label>
+        <div class="col-sm-10">
+            <input type="text" value="" name="weight" id="weight" class="form-control"
+                    placeholder="100 kg" />
+            <span class="help-block">{{ errors.weight }}</span>
         </div>
     </div>
 

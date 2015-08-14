@@ -15,24 +15,54 @@
 
 {% block content %}
 <table class="table table-hover table-striped">
+	{% with order_by=request.GET.order_by reverse=request.GET.reverse %}
     <thead>
         <tr>
-            <th>№ парті</th>
-            <th>Дата посолу</th>
+            <th>
+			<a href="{% url "home" %}?order_by=id{% if order_by == 'id' and reverse != '1' %}&amp;reverse=1{% endif%}">
+				№ партії
+				{% if order_by == 'id' and reverse != '1' %}&uarr;
+				{% elif order_by == 'id' and reverse == '1' %}&darr;
+				{% endif %}
+			</a>
+			</th>
+            <th>
+			<a href="{% url "home" %}?order_by=date_salting{% if order_by == 'date_salting' and reverse != '1' %}&amp;reverse=1{% endif %}">
+				Дата посолу
+				{% if order_by == 'date_salting' and reverse != '1' %}&uarr;
+				{% elif order_by == 'date_salting' and reverse == '1' %}&darr;
+				{% endif %}
+			</a>
+			</th>
+			<th>Ємність №(бочка, ...)</th>
             <th>Риба</th>
-            <th>Потрібний час для засолу(днів)</th>
-            <th>Ємність №(бочка, ...)</th>
+            <th>
+			<a href="{% url "home" %}{% if order_by == '' %}?order_by=date_removing&amp;reverse=1
+			{% else %}?order_by=date_removing{% if order_by == 'date_removing' and reverse != '1' %}&amp;reverse=1{% endif %}
+			{% endif %}">
+				Дата виємки
+				{% if order_by == '' and reverse != '1' %}&uarr;
+				{% elif order_by == 'date_removing' and reverse != '1' %}&uarr;
+				{% elif order_by == 'date_removing' and reverse == '1' %}&darr;
+				{% endif %}
+			</a>
+			</th>
+			<th>Потрібний час для засолу(днів)</th>
+			<th>Кількість риби</th>
             <th>Дії</th>
         </tr>
     </thead>
+	{% endwith %}
     <tbody>
 	{% for salting in allSalt %}
         <tr>
             <td>{{ salting.id }}</td>
             <td>{{ salting.date_salting }}</td>
+			<td>{{ salting.tank_salting }}</td>
             <td>{{ salting.name_fish }}</td>
-            <td>{{ salting.required_salting }}</td>
-            <td>{{ salting.tank_salting }}</td>
+            <td>{{ salting.date_removing }}</td>
+			<td>{{ salting.required_salting }}</td>
+			<td>{{ salting.weight }}</td>
             <td>
 				<div class="dropdown">
 					<button class="btn btn-default dropdown-toggle"
@@ -56,20 +86,24 @@
 {% endblock content %}
 
 {% block nav %}
+{% if allSalt.has_other_pages %}
+{% with order_by=request.GET.order_by reverse=request.GET.reverse %}
 <nav>
 	<ul class="pagination">
 		<li>
-			<a href="{% url "home" %}?page=1">&laquo;</a>
+			<a href="{% url "home" %}?page=1&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">&laquo;</a>
 		</li>
 		{% for p in allSalt.paginator.page_range %}
 		<li {% if allSalt.number == p %}class="active"{% endif %}>
-			<a href="{% url "home" %}?page={{ p }}">{{ p }}</a>
+			<a href="{% url "home" %}?page={{ p }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">{{ p }}</a>
 		</li>
 		{% endfor %}
 
 		<li>
-			<a href="{% url "home" %}?page={{ allSalt.paginator.num_pages }}">&raquo;</a>
+			<a href="{% url "home" %}?page={{ allSalt.paginator.num_pages }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">&raquo;</a>
 		</li>
 	</ul>
 </nav>
+{% endwith %}
+{% endif %}
 {% endblock nav %}
