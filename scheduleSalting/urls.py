@@ -23,5 +23,7 @@ urlpatterns = patterns('',
     url(r'^salting/add/$', 'schedule.views.salting_add', name="salting_add"),
     # url(r'^salting/add/$', SaltingAddView.as_view(), name="salting_add"),
 
+    url(r'^salting/(?P<sid>\d+)/edit/$', 'schedule.views.salting_edit', name="salting_edit"),
+
     url(r'^admin/', include(admin.site.urls)),
 )

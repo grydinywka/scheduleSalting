@@ -15,6 +15,7 @@ from crispy_forms.bootstrap import FormActions
 
 from django.views.generic import CreateView
 
+import datetime
 
 def salting_list(request):
 	allSalt = Salting.objects.all()
@@ -77,13 +78,58 @@ class SaltingAddEditForm(forms.ModelForm):
 		)
 
 	date_salting = forms.DateField(
-		label=u'Дата посолу',
+		label=u'Дата посолу*',
 		initial="2015-08-25",
 		help_text=u"Н-д. 2015-08-29",
 		error_messages={'required': u"Поле дати засолки є обов’язковим",
 						'invalid': u'Ведіть правильний формат Дати'}
 	)
 
+def salting_edit(request, sid):
+	salting = Salting.objects.filter(pk=sid)[0]
+	if request.method == 'POST':
+		form = SaltingAddEditForm(request.POST)
+
+		if request.POST.get('edit_button') is not None:
+			if form.is_valid():
+				salting.date_salting = form.cleaned_data['date_salting']
+				salting.tank_salting = form.cleaned_data['tank_salting']
+				salting.name_fish = form.cleaned_data['name_fish']
+				salting.required_salting = form.cleaned_data['required_salting']
+				salting.weight = form.cleaned_data['weight']
+				salting.notes = form.cleaned_data['notes']
+
+				# check data_removing
+				deltaSalting = datetime.timedelta(days=int(salting.required_salting))
+				salting.date_removing = salting.date_salting + deltaSalting
+
+				try:
+					salting.save()
+				except Exception as e:
+					messages.error(request, (u"Невдале Редагування %s! " % salting) + str(e))
+				else:
+					messages.success(request, (u"Засолка %s була оновлена успішно!" % salting))
+
+				return HttpResponseRedirect(reverse('home'))
+			else:
+				messages.info(request, u"Помилка Валідації")
+				return render(request, 'schedule/salting_add2.html', {'form': form, 'title': "edit", 'sid': sid})
+		elif request.POST.get('cancel_button') is not None:
+			messages.info(request, u"Оновлення Засолки %s скасовано!" % salting)
+			return HttpResponseRedirect(reverse('home'))
+	else:
+		default = {
+			'date_salting': salting.date_salting,
+			'tank_salting': salting.tank_salting,
+			'name_fish': salting.name_fish,
+			'required_salting': salting.required_salting,
+			'weight': salting.weight,
+			'notes': salting.notes
+		}
+		form = SaltingAddEditForm(default)
+		return render(request, 'schedule/salting_add2.html', {'form': form,
+															  'sid': sid,
+															  'title': 'edit'})
 
 def salting_add(request):
 	if request.method == 'POST':
@@ -106,7 +152,7 @@ def salting_add(request):
 				except Exception as e:
 					messages.error(request, (u"Невдале створення %s! " % salting) + str(e))
 				else:
-					messages.error(request, (u"Засолка %s була створена успішно!" % salting))
+					messages.success(request, (u"Засолка %s була створена успішно!" % salting))
 
 				return HttpResponseRedirect(reverse('home'))
 			else:
