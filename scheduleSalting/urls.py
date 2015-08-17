@@ -16,9 +16,12 @@ Including another URLconf
 from django.conf.urls import include, url, patterns
 from django.contrib import admin
 
+from schedule.views import SaltingAddView
+
 urlpatterns = patterns('',
     url(r'^$', 'schedule.views.salting_list', name="home"),
     url(r'^salting/add/$', 'schedule.views.salting_add', name="salting_add"),
+    # url(r'^salting/add/$', SaltingAddView.as_view(), name="salting_add"),
 
     url(r'^admin/', include(admin.site.urls)),
 )
