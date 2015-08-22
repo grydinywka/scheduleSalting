@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from django.shortcuts import render
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
@@ -7,15 +9,12 @@ from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 
-from .models import Salting
-
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Fieldset, ButtonHolder
-from crispy_forms.bootstrap import FormActions
+from crispy_forms.bootstrap import FormActions, AppendedText
 
-from django.views.generic import CreateView
-
-import datetime
+from django.views.generic import CreateView,UpdateView
+from .models import Salting
 
 def salting_list(request):
 	allSalt = Salting.objects.all()
@@ -39,7 +38,6 @@ def salting_list(request):
 		allSalt = paginator.page(paginator.num_pages)
 	return render(request, "schedule/salting.html", {'allSalt': allSalt})
 
-
 # Class form for add/edit salting
 class SaltingAddEditForm(forms.ModelForm):
 	""" Form for add and edit salting """
@@ -55,34 +53,82 @@ class SaltingAddEditForm(forms.ModelForm):
 
 		# set form tag attributes
 		self.helper.form_action = reverse('salting_add')
+		if 'instance' in kwargs:
+			if kwargs['instance']:
+				self.helper.form_action = reverse('salting_edit',
+					kwargs={'sid': kwargs['instance'].id})
+			else:
+				self.helper.form_action = reverse('salting_add')
+		else:
+			self.helper.form_action = reverse('salting_add')
 		self.helper.form_method = 'POST'
 		self.helper.form_class = 'form-horizontal'
 
 		# set form field properties
 		self.helper.help_text_inline = True
-		self.helper.html5_required = True
+		self.helper.html5_required = False
 		self.helper.label_class = 'col-sm-2 control-label'
 		self.helper.field_class = 'col-sm-6'
 
 		# add buttons
-		length = len(self.Meta.fields)
+		if 'instance' in kwargs:
+			if kwargs['instance']:
+				addEditBtn = Submit('edit_button', u'Оновити', css_class="btn btn-primary")
+			else:
+				addEditBtn = Submit('add_button', u'Додати', css_class="btn btn-primary")
+		else:
+			addEditBtn = Submit('add_button', u'Додати', css_class="btn btn-primary")
 		self.helper.layout = FormActions(
-			'date_salting',
+			AppendedText('date_salting', "<span class='glyphicon glyphicon-calendar'></span>",
+										  active=True),
 			'tank_salting',
 			'name_fish',
 			'required_salting',
 			'weight',
 			'notes',
-			Submit('add_button', u'Додати', css_class="btn btn-primary"),
+			addEditBtn,
 			Submit('cancel_button', u'Скасувати', css_class="btn btn-link")
 		)
 
 	date_salting = forms.DateField(
 		label=u'Дата посолу*',
-		initial="2015-08-25",
+		# initial="2015-08-25",
 		help_text=u"Н-д. 2015-08-29",
 		error_messages={'required': u"Поле дати засолки є обов’язковим",
 						'invalid': u'Ведіть правильний формат Дати'}
+	)
+	tank_salting = forms.CharField(
+		label='Ємність посолу і місце*',
+		help_text="Н-д., Бочка № 2, холодильник",
+		error_messages={'required': u"Поле ємності є обов’язкове!"}
+	)
+	name_fish = forms.ChoiceField(
+		label='Назва риби*',
+		help_text="Виберіть потрібне із списку.",
+		error_messages={'required': u"Назва риби є обов’язковою!"},
+        choices=(
+            ('Taran', 'Taran'),
+            ('Lyasch', 'Lyasch'),
+        )
+	)
+	required_salting = forms.IntegerField(
+		label=u"Час на соління(днів)*",
+		help_text=u"Введіть кількість днів",
+		error_messages={'required': u"ВВведіть час засолки!"},
+		min_value=1,
+		max_value=60
+	)
+	weight = forms.CharField(
+		label=u"Кількість риби",
+		required=False,
+		help_text=u"В кілограмах або ящиках"
+	)
+	notes = forms.CharField(
+		label=u'Нотатки',
+		help_text=u'Додаткова інформація',
+		max_length=2000,
+		required=False,
+		widget=forms.Textarea
 	)
 
 def salting_edit(request, sid):
@@ -168,7 +214,7 @@ def salting_add(request):
 
 class SaltingAddView(CreateView):
 	model = Salting
-	template_name = 'schedule/salting_add2.html'
+	template_name = 'schedule/salting_add_with_crispy.html'
 	form_class = SaltingAddEditForm
 
 	def get_success_url(self):
@@ -181,3 +227,33 @@ class SaltingAddView(CreateView):
 			return HttpResponseRedirect(reverse('home'))
 		else:
 			return super(SaltingAddView, self).post(request, *args, **kwargs)
+
+	def get_context_data(self, **kwargs):
+		context = super(SaltingAddView, self).get_context_data(**kwargs)
+		context['title'] = u'Додавання Засолки'
+
+		return context
+
+class SaltingEditView(UpdateView):
+	model = Salting
+	template_name = 'schedule/salting_add_with_crispy.html'
+	pk_url_kwarg = 'sid'
+	form_class = SaltingAddEditForm
+
+	def get_success_url(self):
+		messages.success(self.request, u'Засолку %s успішно оновлено!' % self.object)
+		return reverse('home')
+
+	def post(self, request, *args, **kwargs):
+		if request.POST.get('cancel_button'):
+			messages.info(self.request, u'Оновлення Засолки %s відмінено!' % self.get_object())
+			return HttpResponseRedirect(reverse('home'))
+		else:
+			return super(SaltingEditView, self).post(request, *args, **kwargs)
+
+	def get_context_data(self, **kwargs):
+		context = super(SaltingEditView, self).get_context_data(**kwargs)
+		context['title'] = u'Оновлення Засолки'
+
+		return context
+

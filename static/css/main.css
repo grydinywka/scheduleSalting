@@ -11,9 +11,17 @@
 #add_salting {
     vertical-align: middle !important;
     text-align: left;
-    margin: 20px 0px 10px !important;
+    margin: 20px 0px 10px;
 }
 
 div {
     border: 0px solid blue;
+}
+
+div.col-sm-3 {
+    text-align: right;
+}
+ul.errorlist {
+    text-align: left;
+    color: #a94442;
 }

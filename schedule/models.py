@@ -58,6 +58,7 @@ class Salting(models.Model):
         verbose_name=u'Кількість риби'
     )
 
+
     def __unicode__(self):
         return u'%s, %s' % (self.date_salting, self.name_fish)
 
