@@ -15,29 +15,18 @@ method="post">
 
 		{% csrf_token %}
 
-		<!--{{ form.as_p }}-->
-		{% for field in form %}
-			<div class="Wrapping form-group {% if field.errors %}has-error{%endif%}">
-				<div class="col-sm-3 control-label">{{ field.label_tag }}</div>
-				<div class="col-sm-9">{{ field }} {{ field.help_text }}</div>
-				{{ field.errors }}
-			</div>
-		{% endfor %}
+		{{ form.as_p }}
 
-		<div class="form-group">
-			<label class="col-sm-3 control-label"></label>
-			<div class="col-sm-9">
-				{% if not title %}
-				<input type="submit" value="Додати" name="add_button"
-					   class="btn btn-primary" />
-				{% else %}
-				<input type="submit" value="Редагувати" name="edit_button"
-					   class="btn btn-primary" />
-				{% endif %}
-				<button type="submit" name="cancel_button" value="Скасувати"
-						class="btn btn-link">Скасувати</button>
-			</div>
-		</div>
+        {% if not title %}
+        <input type="submit" value="Додати" name="add_button"
+			   class="btn btn-primary" />
+        {% else %}
+        <input type="submit" value="Редагувати" name="edit_button"
+			   class="btn btn-primary" />
+        {% endif %}
+		<button type="submit" name="cancel_button" value="Скасувати"
+				class="btn btn-link">Скасувати</button>
+
 	</form>
 
 <!--{% crispy form %}-->

@@ -70,6 +70,7 @@ class Salting(models.Model):
         verbose_name=u'Кількість риби'
     )
 
+<<<<<<< HEAD
     status = models.BooleanField(
         blank=False,
         verbose_name=u'Статус',
@@ -80,6 +81,8 @@ class Salting(models.Model):
         )
     )
 
+=======
+>>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
     def __unicode__(self):
         return u'%s, %s' % (self.date_salting, self.name_fish)
 

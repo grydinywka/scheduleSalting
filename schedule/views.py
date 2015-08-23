@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import datetime
-
 from django.shortcuts import render
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
@@ -9,12 +7,20 @@ from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 
+from .models import Salting
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Fieldset, ButtonHolder
-from crispy_forms.bootstrap import FormActions, AppendedText
+from crispy_forms.bootstrap import FormActions
 
+<<<<<<< HEAD
 from django.views.generic import CreateView, UpdateView
 from .models import Salting
+=======
+from django.views.generic import CreateView
+
+import datetime
+>>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
 
 
 def salting_list(request):
@@ -40,12 +46,15 @@ def salting_list(request):
 	return render(request, "schedule/salting.html", {'allSalt': allSalt})
 
 
+<<<<<<< HEAD
 # def salting_list_history(request):
 # 	saltings = Salting.objects.all().filter(status=False)
 # 	return render(request, 'schedule/salting_add_with_crispy.html', {})
 
 
 
+=======
+>>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
 # Class form for add/edit salting
 class SaltingAddEditForm(forms.ModelForm):
 	""" Form for add and edit salting """
@@ -61,50 +70,46 @@ class SaltingAddEditForm(forms.ModelForm):
 
 		# set form tag attributes
 		self.helper.form_action = reverse('salting_add')
-		if 'instance' in kwargs:
-			if kwargs['instance']:
-				self.helper.form_action = reverse('salting_edit',
-					kwargs={'sid': kwargs['instance'].id})
-			else:
-				self.helper.form_action = reverse('salting_add')
-		else:
-			self.helper.form_action = reverse('salting_add')
 		self.helper.form_method = 'POST'
 		self.helper.form_class = 'form-horizontal'
 
 		# set form field properties
 		self.helper.help_text_inline = True
-		self.helper.html5_required = False
+		self.helper.html5_required = True
 		self.helper.label_class = 'col-sm-2 control-label'
 		self.helper.field_class = 'col-sm-6'
 
 		# add buttons
-		if 'instance' in kwargs:
-			if kwargs['instance']:
-				addEditBtn = Submit('edit_button', u'Оновити', css_class="btn btn-primary")
-			else:
-				addEditBtn = Submit('add_button', u'Додати', css_class="btn btn-primary")
-		else:
-			addEditBtn = Submit('add_button', u'Додати', css_class="btn btn-primary")
+		length = len(self.Meta.fields)
 		self.helper.layout = FormActions(
+<<<<<<< HEAD
 			AppendedText('date_salting', "<span class='glyphicon glyphicon-calendar'></span>",
 						 active=True),
+=======
+			'date_salting',
+>>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
 			'tank_salting',
 			'name_fish',
 			'required_salting',
 			'weight',
 			'notes',
-			addEditBtn,
+			Submit('add_button', u'Додати', css_class="btn btn-primary"),
 			Submit('cancel_button', u'Скасувати', css_class="btn btn-link")
 		)
 
 	date_salting = forms.DateField(
+<<<<<<< HEAD
 		label=u'Дата посолу',
 		# initial="2015-08-25",
+=======
+		label=u'Дата посолу*',
+		initial="2015-08-25",
+>>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
 		help_text=u"Н-д. 2015-08-29",
 		error_messages={'required': u"Поле дати засолки є обов’язковим",
 						'invalid': u'Ведіть правильний формат Дати'}
 	)
+<<<<<<< HEAD
 	tank_salting = forms.CharField(
 		label=u'Ємність посолу і місце',
 		help_text=u"Н-д., Бочка № 2, холодильник",
@@ -148,6 +153,8 @@ class SaltingAddEditForm(forms.ModelForm):
 		required=False,
 		widget=forms.Textarea
 	)
+=======
+>>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
 
 
 def salting_edit(request, sid):
@@ -234,7 +241,7 @@ def salting_add(request):
 
 class SaltingAddView(CreateView):
 	model = Salting
-	template_name = 'schedule/salting_add_with_crispy.html'
+	template_name = 'schedule/salting_add2.html'
 	form_class = SaltingAddEditForm
 
 	def get_success_url(self):
@@ -247,6 +254,7 @@ class SaltingAddView(CreateView):
 			return HttpResponseRedirect(reverse('home'))
 		else:
 			return super(SaltingAddView, self).post(request, *args, **kwargs)
+<<<<<<< HEAD
 
 	def get_context_data(self, **kwargs):
 		context = super(SaltingAddView, self).get_context_data(**kwargs)
@@ -340,3 +348,5 @@ class SaltingChangeStatus(UpdateView):
 			return HttpResponseRedirect(reverse('home'))
 		else:
 			return super(SaltingChangeStatus, self).post(request, *args, **kwargs)
+=======
+>>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
