@@ -25,8 +25,18 @@ class Salting(models.Model):
         blank=False,
         verbose_name=u'Назва риби(риб)',
         choices=(
-            ('Taran', 'Taran'),
-            ('Lyasch', 'Lyasch'),
+            (u'Тарань', u'Тарань'),
+            (u'Лящ цілий', u'Лящ цілий'),
+            (u'Лящ різаний', u'Лящ різаний'),
+            (u'Товстолоб філе', u'Товстолоб філе'),
+            (u'Сом філе', u'Сом філе'),
+            (u'Густир', u'Густир'),
+            (u'Судак', u'Судак'),
+            (u'Судак різаний', u'Судак різаний'),
+            (u'Карась цілий', u'Карась цілий'),
+            (u'Карась різаний', u'Карась різаний'),
+            (u'Короп цілий', u'Короп цілий'),
+            (u'Короп різаний', u'Короп різаний'),
         )
     )
 
@@ -50,7 +60,9 @@ class Salting(models.Model):
     date_removing = models.DateField(
         blank=True,
         verbose_name=u'Дата виємки',
-        null=True)
+        null=True,
+        editable=False
+    )
 
     weight = models.CharField(
         max_length=256,
@@ -58,6 +70,15 @@ class Salting(models.Model):
         verbose_name=u'Кількість риби'
     )
 
+    status = models.BooleanField(
+        blank=False,
+        verbose_name=u'Статус',
+        default=True,
+        choices=(
+            (False, u'Засолка витягнута'),
+            (True, u'Засолка триває'),
+        )
+    )
 
     def __unicode__(self):
         return u'%s, %s' % (self.date_salting, self.name_fish)

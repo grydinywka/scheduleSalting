@@ -49,6 +49,7 @@
 			</th>
 			<th>Потрібний час для засолу(днів)</th>
 			<th>Кількість риби</th>
+			<th>Статус Засолки</th>
             <th>Дії</th>
         </tr>
     </thead>
@@ -63,6 +64,7 @@
             <td>{{ salting.date_removing }}</td>
 			<td>{{ salting.required_salting }}</td>
 			<td>{{ salting.weight }}</td>
+			<td>{% if salting.status %}Засолка триває{% else %}Засолка витягнута{% endif %}</td>
             <td>
 				<div class="dropdown">
 					<button class="btn btn-default dropdown-toggle"
@@ -73,6 +75,10 @@
 						<li role="presentation">
 							<a role="menuitem" tabindex="-1" href="{% url "salting_edit" salting.id %}">
 							Оновити</a>
+						</li>
+						<li role="presentation">
+							<a role="menuitem" tabindex="-1" href="{% url "salting_change_status" salting.id %}">
+							Змінити Статус</a>
 						</li>
 					</ul>
 				</div>
