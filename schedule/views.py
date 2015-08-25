@@ -13,11 +13,11 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Fieldset, ButtonHolder
 from crispy_forms.bootstrap import FormActions, AppendedText
 
-from django.views.generic import CreateView,UpdateView
+from django.views.generic import CreateView, UpdateView
 from .models import Salting
 
 def salting_list(request):
-	allSalt = Salting.objects.all()
+	allSalt = Salting.objects.all().filter(status=True)
 
 	# try to order salting list
 	order_by = request.GET.get('order_by', '')
@@ -91,30 +91,39 @@ class SaltingAddEditForm(forms.ModelForm):
 		)
 
 	date_salting = forms.DateField(
-		label=u'Дата посолу*',
+		label=u'Дата посолу',
 		# initial="2015-08-25",
 		help_text=u"Н-д. 2015-08-29",
 		error_messages={'required': u"Поле дати засолки є обов’язковим",
 						'invalid': u'Ведіть правильний формат Дати'}
 	)
 	tank_salting = forms.CharField(
-		label='Ємність посолу і місце*',
+		label='Ємність посолу і місце',
 		help_text="Н-д., Бочка № 2, холодильник",
 		error_messages={'required': u"Поле ємності є обов’язкове!"}
 	)
 	name_fish = forms.ChoiceField(
-		label='Назва риби*',
+		label='Назва риби',
 		help_text="Виберіть потрібне із списку.",
 		error_messages={'required': u"Назва риби є обов’язковою!"},
         choices=(
-            ('Taran', 'Taran'),
-            ('Lyasch', 'Lyasch'),
+            (u'Тарань', u'Тарань'),
+            (u'Лящ різаний', u'Лящ різаний'),
+            (u'Лящ цілий', u'Лящ цілий'),
+            (u'Сом філе', u'Сом філе'),
+            (u'Товстолоб філе', u'Товстолоб філе'),
+            (u'Судак', u'Судак'),
+            (u'Густирь', u'Густирь'),
+            (u'Сало, м’ясо', u'Сало, м’ясо'),
+            (u'Карась різаний', u'Карась різаний'),
+            (u'Карась цілий', u'Карась цілий'),
+            (u'Короп різаний', u'Короп різаний'),
         )
 	)
 	required_salting = forms.IntegerField(
-		label=u"Час на соління(днів)*",
+		label=u"Час на соління(днів)",
 		help_text=u"Введіть кількість днів",
-		error_messages={'required': u"ВВведіть час засолки!"},
+		error_messages={'required': u"Ввведіть час засолки!"},
 		min_value=1,
 		max_value=60
 	)
@@ -234,6 +243,10 @@ class SaltingAddView(CreateView):
 
 		return context
 
+	def form_invalid(self, form):
+		messages.error(self.request, u'Помилка Валідації!')
+		return self.render_to_response(self.get_context_data(form=form))
+
 class SaltingEditView(UpdateView):
 	model = Salting
 	template_name = 'schedule/salting_add_with_crispy.html'
@@ -257,3 +270,60 @@ class SaltingEditView(UpdateView):
 
 		return context
 
+	def form_invalid(self, form):
+		messages.error(self.request, u'Помилка Валідації!')
+		return self.render_to_response(self.get_context_data(form=form))
+
+class SaltingChangeStatusForm(forms.ModelForm):
+	""" Form for change salting's status """
+
+	class Meta:
+		model = Salting
+		fields = ['status']
+
+	def __init__(self, *args, **kwargs):
+		super(SaltingChangeStatusForm, self).__init__(*args, **kwargs)
+
+		self.helper = FormHelper(self)
+
+		# set form tag attributes
+		self.helper.form_action = reverse('salting_change_status',
+										  kwargs={'sid': kwargs['instance'].id})
+		self.helper.form_method = 'POST'
+		self.helper.form_class = 'form-horizontal'
+
+		# set form field properties
+		self.helper.help_text_inline = True
+		self.helper.html5_required = True
+		self.helper.label_class = 'col-sm-2 control-label'
+		self.helper.field_class = 'col-sm-6'
+
+		# add buttons
+		self.helper.layout = FormActions(
+			'status',
+			Submit('edit_button', u'ОК', css_class="btn btn-primary"),
+			Submit('cancel_button', u'Скасувати', css_class="btn btn-link")
+		)
+
+
+class SaltingChangeStatus(UpdateView):
+	model = Salting
+	template_name = 'schedule/salting_change_status.html'
+	pk_url_kwarg = 'sid'
+	form_class = SaltingChangeStatusForm
+
+	def get_success_url(self):
+		if self.object.status:
+			status = u'"ЗАСОЛКА ТРИВАЄ"'
+		else:
+			status = u'"ЗАСОЛКА ВИТЯГНУТА"'
+		messages.success(self.request, (u'Статус Засолки %s успішно Змінено на %s!' % (self.object,
+																					   status)))
+		return reverse('home')
+
+	def post(self, request, *args, **kwargs):
+		if request.POST.get('cancel_button'):
+			messages.info(self.request, u'Зміна Статусу Засолки %s відмінена!' % self.get_object())
+			return HttpResponseRedirect(reverse('home'))
+		else:
+			return super(SaltingChangeStatus, self).post(request, *args, **kwargs)

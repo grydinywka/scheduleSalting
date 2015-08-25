@@ -1,0 +1,15 @@
+{% extends "schedule/base.html" %}
+
+{% load static from staticfiles %}
+{% load crispy_forms_tags %}
+
+{% block meta_title %}Змінити Статус Засолки{% endblock meta_title %}
+
+{% block title %}Зміна Статусу Засолки{% endblock title %}
+
+{% block content %}
+<!--Start Form-->
+
+{% crispy form %}
+
+{% endblock content %}
