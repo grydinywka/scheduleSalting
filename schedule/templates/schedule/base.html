@@ -40,7 +40,10 @@
 					<ul class="nav nav-tabs" role="tablist">
 
 						<li role="presentation" {% url 'home' as the_url_home %}{% if request.path == the_url_home %}class="active"{% endif %}>
-							<a href="{% url "home" %}">Графік</a>
+							<a href="{% url "home" %}">Графік Засолки</a>
+						</li>
+						<li role="presentation" {% url 'salting_history' as the_url_history %}{% if request.path ==	the_url_history %}class="active"{% endif %}>
+							<a href="{% url "salting_history" %}">Витягнуті засолки</a>
 						</li>
 						<li role="presentation"><a href="#">Розсилка</a>
 						</li>

@@ -13,7 +13,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Fieldset, ButtonHolder
 from crispy_forms.bootstrap import FormActions, AppendedText
 
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, ListView
 from .models import Salting
 
 def salting_list(request):
@@ -36,7 +36,7 @@ def salting_list(request):
 		allSalt = paginator.page(1)
 	except EmptyPage:
 		allSalt = paginator.page(paginator.num_pages)
-	return render(request, "schedule/salting.html", {'allSalt': allSalt})
+	return render(request, "schedule/salting.html", {'allSalt': allSalt, 'title': u'Засолка триває', 'status': True})
 
 # Class form for add/edit salting
 class SaltingAddEditForm(forms.ModelForm):
@@ -327,3 +327,40 @@ class SaltingChangeStatus(UpdateView):
 			return HttpResponseRedirect(reverse('home'))
 		else:
 			return super(SaltingChangeStatus, self).post(request, *args, **kwargs)
+
+class SaltingHistory(ListView):
+	"""Salting list, status - False"""
+
+	model = Salting
+	template_name = "schedule/salting.html"
+	queryset = Salting.objects.all().filter(status=False).order_by('date_removing')
+	context_object_name = 'allSalt'
+
+	def get_context_data(self, **kwargs):
+		context = super(SaltingHistory, self).get_context_data(**kwargs)
+
+		context['title'] = u'Витягнуті Засолки'
+		context['status'] = False
+
+		return context
+
+	def get_queryset(self):
+		qs = super(SaltingHistory, self).get_queryset()
+
+		order_by = self.request.GET.get('order_by', '')
+		if order_by in ('date_salting', 'date_removing', 'id'):
+			qs = qs.order_by(order_by)
+			if self.request.GET.get('reverse', '') == '1':
+				qs = qs.reverse()
+
+		paginator = Paginator(qs, 3)
+		page = self.request.GET.get('page')
+		try:
+			qs = paginator.page(page)
+		except PageNotAnInteger:
+			qs = paginator.page(1)
+		except EmptyPage:
+			qs = paginator.page(paginator.num_pages)
+
+		return qs
+

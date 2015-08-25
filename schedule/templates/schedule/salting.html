@@ -2,24 +2,31 @@
 
 {% load static from staticfiles %}
 
-{% block meta_title %}Таблиця Засолу{% endblock meta_title %}
+{% block meta_title %}Таблиця Засолу - {{ title }}{% endblock meta_title %}
 
-{% block title %}База Засолу{% endblock title %}
+{% block title %}База Засолу - {{ title }}{% endblock title %}
 
 {% block add_btn %}
+{% if status %}
 <div class="col-xs-4" id="add_salting">
 	<!--  Add Student Button  -->
 	<a class="btn btn-primary" href="{% url "salting_add" %}">Додати Засолку</a>
 </div>
+{% endif %}
 {% endblock add_btn %}
 
 {% block content %}
+{% if status %}
+	{% url 'home' as the_url %}
+{% else %}
+	{% url 'salting_history' as the_url %}
+{% endif %}
 <table class="table table-hover table-striped">
 	{% with order_by=request.GET.order_by reverse=request.GET.reverse %}
     <thead>
         <tr>
             <th>
-			<a href="{% url "home" %}?order_by=id{% if order_by == 'id' and reverse != '1' %}&amp;reverse=1{% endif%}">
+			<a href="{{ the_url }}?order_by=id{% if order_by == 'id' and reverse != '1' %}&amp;reverse=1{% endif%}">
 				№ партії
 				{% if order_by == 'id' and reverse != '1' %}&uarr;
 				{% elif order_by == 'id' and reverse == '1' %}&darr;
@@ -27,7 +34,7 @@
 			</a>
 			</th>
             <th>
-			<a href="{% url "home" %}?order_by=date_salting{% if order_by == 'date_salting' and reverse != '1' %}&amp;reverse=1{% endif %}">
+			<a href="{{ the_url }}?order_by=date_salting{% if order_by == 'date_salting' and reverse != '1' %}&amp;reverse=1{% endif %}">
 				Дата посолу
 				{% if order_by == 'date_salting' and reverse != '1' %}&uarr;
 				{% elif order_by == 'date_salting' and reverse == '1' %}&darr;
@@ -37,7 +44,7 @@
 			<th>Ємність №(бочка, ...)</th>
             <th>Риба</th>
             <th>
-			<a href="{% url "home" %}{% if order_by == '' %}?order_by=date_removing&amp;reverse=1
+			<a href="{{ the_url }}{% if order_by == '' %}?order_by=date_removing&amp;reverse=1
 			{% else %}?order_by=date_removing{% if order_by == 'date_removing' and reverse != '1' %}&amp;reverse=1{% endif %}
 			{% endif %}">
 				Дата виємки
@@ -97,16 +104,16 @@
 <nav>
 	<ul class="pagination">
 		<li>
-			<a href="{% url "home" %}?page=1&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">&laquo;</a>
+			<a href="{{ the_url }}?page=1&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">&laquo;</a>
 		</li>
 		{% for p in allSalt.paginator.page_range %}
 		<li {% if allSalt.number == p %}class="active"{% endif %}>
-			<a href="{% url "home" %}?page={{ p }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">{{ p }}</a>
+			<a href="{{ the_url }}?page={{ p }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">{{ p }}</a>
 		</li>
 		{% endfor %}
 
 		<li>
-			<a href="{% url "home" %}?page={{ allSalt.paginator.num_pages }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">&raquo;</a>
+			<a href="{{ the_url }}?page={{ allSalt.paginator.num_pages }}&amp;order_by={{ order_by }}&amp;reverse={{ reverse }}">&raquo;</a>
 		</li>
 	</ul>
 </nav>
