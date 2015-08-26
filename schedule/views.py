@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import datetime
+import datetime, time
 
 from django.shortcuts import render
 from django import forms
@@ -36,7 +36,8 @@ def salting_list(request):
 		allSalt = paginator.page(1)
 	except EmptyPage:
 		allSalt = paginator.page(paginator.num_pages)
-	return render(request, "schedule/salting.html", {'allSalt': allSalt, 'title': u'Засолка триває', 'status': True})
+	return render(request, "schedule/salting.html", {'allSalt': allSalt, 'title': u'Засолка триває', 'status': True,
+													 'date_today': time.strftime("%Y-%m-%d")})
 
 # Class form for add/edit salting
 class SaltingAddEditForm(forms.ModelForm):

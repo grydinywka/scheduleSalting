@@ -63,7 +63,8 @@
 	{% endwith %}
     <tbody>
 	{% for salting in allSalt %}
-        <tr>
+	{% with date_remov=salting.date_removing|date:"Y-m-d" %}
+        <tr {% if date_remov == date_today %}class="warning"{% endif %}>
             <td>{{ salting.id }}</td>
             <td>{{ salting.date_salting }}</td>
 			<td>{{ salting.tank_salting }}</td>
@@ -91,6 +92,7 @@
 				</div>
 			</td>
         </tr>
+	{% endwith %}
 	{% endfor %}
     </tbody>
 </table>
