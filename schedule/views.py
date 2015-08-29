@@ -22,7 +22,7 @@ from scheduleSalting.settings import ADMIN_EMAIL
 def checkDataRemoving(queryset, request):
 	global date_today, time_now, time_to_send_msg
 	date_today = time.strftime("%Y-%m-%d")
-	time_to_send_msg = time.strftime("21:56")
+	time_to_send_msg = time.strftime("22:37")
 	time_now = time.strftime("%H:%M")
 	needed_salting = queryset.filter(date_removing=date_today)
 
@@ -63,7 +63,8 @@ def salting_list(request):
 
 	return render(request, "schedule/salting.html", {'allSalt': allSalt, 'title': u'Засолка триває', 'status': True,
 													 'date_today': date_today, 'time_now': time_now,
-													 'time_to_send_msg': time_to_send_msg})
+													 'time_to_send_msg': time_to_send_msg,
+													 'date': datetime.datetime.now()})
 
 # Class form for add/edit salting
 class SaltingAddEditForm(forms.ModelForm):

@@ -24,6 +24,8 @@
 {% endif %}
 <p>{{ time_now }}</p>
 <p>{{ time_to_send_msg }}</p>
+
+
 <table class="table table-hover table-striped">
 	{% with order_by=request.GET.order_by reverse=request.GET.reverse %}
     <thead>
@@ -125,3 +127,7 @@
 {% endwith %}
 {% endif %}
 {% endblock nav %}
+
+{% block extra_js %}
+	<script src="{% static "js/reload.js" %}"></script>
+{% endblock extra_js %}
