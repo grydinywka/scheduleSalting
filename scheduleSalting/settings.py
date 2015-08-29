@@ -116,3 +116,18 @@ STATICFILES_DIRS = (
 )
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+ADMINS = (
+    ('serg', 'grydinywka@gmail.com'),   # email will be sent to your_email
+    ('serg2', 'sergeyi@univ.kiev.ua'),
+)
+
+#email settings
+from psw import password
+ADMIN_EMAIL = 'grydinywka@gmail.com'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '465'
+EMAIL_HOST_USER = 'grydinywka@gmail.com'
+EMAIL_HOST_PASSWORD = password
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True

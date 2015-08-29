@@ -1,6 +1,7 @@
 {% extends "schedule/base.html" %}
 
 {% load static from staticfiles %}
+{% load tz %}
 
 {% block meta_title %}Таблиця Засолу - {{ title }}{% endblock meta_title %}
 
@@ -21,6 +22,8 @@
 {% else %}
 	{% url 'salting_history' as the_url %}
 {% endif %}
+<p>{{ time_now }}</p>
+<p>{{ time_to_send_msg }}</p>
 <table class="table table-hover table-striped">
 	{% with order_by=request.GET.order_by reverse=request.GET.reverse %}
     <thead>
@@ -64,7 +67,7 @@
     <tbody>
 	{% for salting in allSalt %}
 	{% with date_remov=salting.date_removing|date:"Y-m-d" %}
-        <tr {% if date_remov == date_today %}class="warning"{% endif %}>
+        <tr {% if date_remov == date_today %}class="success1"{% endif %}>
             <td>{{ salting.id }}</td>
             <td>{{ salting.date_salting }}</td>
 			<td>{{ salting.tank_salting }}</td>
@@ -72,7 +75,7 @@
             <td>{{ salting.date_removing }}</td>
 			<td>{{ salting.required_salting }}</td>
 			<td>{{ salting.weight }}</td>
-			<td>{% if salting.status %}Засолка триває{% else %}Засолка витягнута{% endif %}</td>
+			{% if salting.status %}<td>Засолка триває</td>{% else %}<td class="success2">Засолка витягнута</td>{% endif %}
             <td>
 				<div class="dropdown">
 					<button class="btn btn-default dropdown-toggle"

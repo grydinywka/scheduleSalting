@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
+from django.core.mail import send_mail
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Fieldset, ButtonHolder
@@ -15,6 +16,27 @@ from crispy_forms.bootstrap import FormActions, AppendedText
 
 from django.views.generic import CreateView, UpdateView, ListView
 from .models import Salting
+
+from scheduleSalting.settings import ADMIN_EMAIL
+
+def checkDataRemoving(queryset, request):
+	global date_today, time_now, time_to_send_msg
+	date_today = time.strftime("%Y-%m-%d")
+	time_to_send_msg = time.strftime("21:56")
+	time_now = time.strftime("%H:%M")
+	needed_salting = queryset.filter(date_removing=date_today)
+
+	if needed_salting and time_now == time_to_send_msg:
+		try:
+			msg2 = '-'.join([i.tank_salting + ', ' + i.name_fish + '\n' for i in needed_salting])
+			msg2 = msg2[:-1]
+			send_mail('subj', msg2, 'sergeyi@univ.kiev.ua', ['sergeyi@univ.kiev.ua', ADMIN_EMAIL])
+		except Exception as e:
+			messages.error(request, u'Під час відправки листа виникла непередбачувана ' \
+			u'помилка. Спробуйте скористатись даною формою пізніше. ' \
+			+ str(e))
+		else:
+			messages.success(request, u'Повідомлення успішно надіслане!')
 
 def salting_list(request):
 	allSalt = Salting.objects.all().filter(status=True)
@@ -28,7 +50,9 @@ def salting_list(request):
 	elif order_by == '':
 		allSalt = allSalt.order_by('date_removing')
 
-	paginator = Paginator(allSalt, 3)
+	checkDataRemoving(allSalt, request)
+
+	paginator = Paginator(allSalt, 5)
 	page = request.GET.get('page')
 	try:
 		allSalt = paginator.page(page)
@@ -36,8 +60,10 @@ def salting_list(request):
 		allSalt = paginator.page(1)
 	except EmptyPage:
 		allSalt = paginator.page(paginator.num_pages)
+
 	return render(request, "schedule/salting.html", {'allSalt': allSalt, 'title': u'Засолка триває', 'status': True,
-													 'date_today': time.strftime("%Y-%m-%d")})
+													 'date_today': date_today, 'time_now': time_now,
+													 'time_to_send_msg': time_to_send_msg})
 
 # Class form for add/edit salting
 class SaltingAddEditForm(forms.ModelForm):
