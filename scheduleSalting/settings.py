@@ -117,17 +117,29 @@ STATICFILES_DIRS = (
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
+from emails import emails
+
 ADMINS = (
-    ('serg', 'grydinywka@gmail.com'),   # email will be sent to your_email
-    ('serg2', 'sergeyi@univ.kiev.ua'),
+    ('serg', emails["gmail"]),   # email will be sent to your_email
+    ('serg2', emails["univ_mail"]),
 )
 
-#email settings
-from psw import password
-ADMIN_EMAIL = 'grydinywka@gmail.com'
+#email settings for gmail
+from psw import password, gmailUser
+ADMIN_EMAIL = emails["univ_mail"]
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = '465'
-EMAIL_HOST_USER = 'grydinywka@gmail.com'
+EMAIL_HOST_USER = gmailUser
 EMAIL_HOST_PASSWORD = password
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
+
+# email settings for sendgrid
+# from pswSendGrid import password, sendGridUser
+# ADMIN_EMAIL = emails["gmail"]
+# EMAIL_HOST = 'smtp.sendgrid.net'
+# EMAIL_PORT = '587'
+# EMAIL_HOST_USER = sendGridUser
+# EMAIL_HOST_PASSWORD = password
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False

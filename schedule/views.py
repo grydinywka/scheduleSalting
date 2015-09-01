@@ -13,24 +13,58 @@ from django.core.mail import send_mail
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Fieldset, ButtonHolder
 from crispy_forms.bootstrap import FormActions, AppendedText
+import sendgrid
+from sendgrid import SendGridError, SendGridClientError, SendGridServerError
+from smtpapi import SMTPAPIHeader
 
 from django.views.generic import CreateView, UpdateView, ListView
 from .models import Salting
 
+from scheduleSalting.pswSendGrid import password, sendGridUser
+from scheduleSalting.emails import emails
 from scheduleSalting.settings import ADMIN_EMAIL
+
+def send_email(needed_salting, date_today, request=None):
+	msg2 = u'Сьогодні, ' + str(date_today) + u'\nВам потрібно витягнути наступні засолки:\n'
+	msg2 += '-'.join([i.tank_salting + ', ' + i.name_fish + '\n' for i in needed_salting])
+	msg2 = msg2[:-1]
+	send_mail('subj', msg2, emails["univ_mail"], [emails["gmail"]])
+
+def send_email_grid(needed_salting, date_today, request):
+	sg = sendgrid.SendGridClient(sendGridUser, password, raise_errors=True)
+	header = SMTPAPIHeader()
+
+	message = sendgrid.Mail()
+	message.add_to([ADMIN_EMAIL])
+	message.set_from(emails["univ_mail"])
+	message.set_subject('Salting notify')
+	msg2 = u'Сьогодні, ' + str(date_today) + u'\nВам потрібно витягнути наступні засолки:\n'
+	msg2 += '-'.join([i.tank_salting + ', ' + i.name_fish + '\n' for i in needed_salting])
+	msg2 = msg2[:-1]
+	message.set_text(msg2)
+	# message.set_html('Saltings')
+
+	try:
+		sg.send(message)
+	except SendGridClientError as e:
+		messages.error(request, str(e))
+		raise SendGridClientError
+	except SendGridServerError as e:
+		messages.error(request, str(e))
+		raise SendGridServerError
+	else:
+		messages.success(request, u'Повідомлення успішно надіслане за допомогою SendGrid!')
 
 def checkDataRemoving(queryset, request):
 	global date_today, time_now, time_to_send_msg
 	date_today = time.strftime("%Y-%m-%d")
-	time_to_send_msg = time.strftime("22:37")
+	time_to_send_msg = time.strftime("20:11")
 	time_now = time.strftime("%H:%M")
 	needed_salting = queryset.filter(date_removing=date_today)
 
 	if needed_salting and time_now == time_to_send_msg:
 		try:
-			msg2 = '-'.join([i.tank_salting + ', ' + i.name_fish + '\n' for i in needed_salting])
-			msg2 = msg2[:-1]
-			send_mail('subj', msg2, 'sergeyi@univ.kiev.ua', ['sergeyi@univ.kiev.ua', ADMIN_EMAIL])
+			send_email(needed_salting, date_today, request)
 		except Exception as e:
 			messages.error(request, u'Під час відправки листа виникла непередбачувана ' \
 			u'помилка. Спробуйте скористатись даною формою пізніше. ' \
