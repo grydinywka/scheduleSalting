@@ -34,7 +34,7 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     "scheduleSalting.context_processors.schedule_proc",
 )
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -86,6 +86,18 @@ PORTAL_URL = 'http://localhost:8000'
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 # database in file db.py
 
+import dj_database_url
+
+# Parse database configuration from $DATABASE_URL
+DATABASES = {'default': dj_database_url.parse('postgres://...')}
+HEROKU_POSTGRESQL_ONYX_URL = 'postgres://...'
+
+# Honor the 'X-Forwarded-Proto' header for request.is_secure()
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Enable Connection Pooling
+DATABASES['default']['ENGINE'] = 'django_postgrespool'
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
@@ -103,11 +115,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
+STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
