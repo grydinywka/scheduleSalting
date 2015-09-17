@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from django.conf import global_settings
-from db import DATABASES
+# from db import DATABASES
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -84,7 +84,17 @@ PORTAL_URL = 'http://localhost:8000'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
-# database in file db.py
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'saltings_db',
+        'USER': 'saltings_db_user',
+        'PASSWORD': 'saltings_db_user',
+        'HOST': 'localhost',
+        'PORT': '',
+    }
+}
 
 import dj_database_url
 
