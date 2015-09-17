@@ -138,7 +138,12 @@ STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
-from emails import emails
+# from emails import emails
+
+emails = {
+    "gmail": 'grydinywka@gmail.com',
+    "univ_mail": 'sergeyi@univ.kiev.ua'
+}
 
 ADMINS = (
     ('serg', emails["gmail"]),   # email will be sent to your_email
@@ -146,7 +151,10 @@ ADMINS = (
 )
 
 #email settings for gmail
-from psw import password, gmailUser
+# from psw import password, gmailUser
+password = 'yepubikfyilzungn'
+gmailUser = 'grydinywka@gmail.com'
+
 ADMIN_EMAIL = emails["univ_mail"]
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = '465'
