@@ -15,7 +15,7 @@ import os
 from django.conf import global_settings
 # from db import DATABASES
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 # Quick-start development settings - unsuitable for production
@@ -99,11 +99,7 @@ DATABASES = {
 import dj_database_url
 
 # Parse database configuration from $DATABASE_URL
-DATABASES = {'default': dj_database_url.parse('postgres://...')}
-HEROKU_POSTGRESQL_ONYX_URL = 'postgres://...'
-
-# Honor the 'X-Forwarded-Proto' header for request.is_secure()
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+DATABASES['default'] = dj_database_url.config()
 
 # Enable Connection Pooling
 #DATABASES['default']['ENGINE'] = 'django_postgrespool'
@@ -134,7 +130,7 @@ STATICFILES_DIRS = (
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+# STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
@@ -172,3 +168,6 @@ EMAIL_USE_SSL = True
 # EMAIL_HOST_PASSWORD = password
 # EMAIL_USE_TLS = True
 # EMAIL_USE_SSL = False
+
+# Honor the 'X-Forwarded-Proto' header for request.is_secure()
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
