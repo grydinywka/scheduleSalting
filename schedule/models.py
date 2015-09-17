@@ -26,16 +26,15 @@ class Salting(models.Model):
         verbose_name=u'Назва риби(риб)',
         choices=(
             (u'Тарань', u'Тарань'),
-            (u'Лящ цілий', u'Лящ цілий'),
             (u'Лящ різаний', u'Лящ різаний'),
-            (u'Товстолоб філе', u'Товстолоб філе'),
+            (u'Лящ цілий', u'Лящ цілий'),
             (u'Сом філе', u'Сом філе'),
-            (u'Густир', u'Густир'),
+            (u'Товстолоб філе', u'Товстолоб філе'),
             (u'Судак', u'Судак'),
-            (u'Судак різаний', u'Судак різаний'),
-            (u'Карась цілий', u'Карась цілий'),
+            (u'Густирь', u'Густирь'),
+            (u'Сало, м’ясо', u'Сало, м’ясо'),
             (u'Карась різаний', u'Карась різаний'),
-            (u'Короп цілий', u'Короп цілий'),
+            (u'Карась цілий', u'Карась цілий'),
             (u'Короп різаний', u'Короп різаний'),
         )
     )
@@ -62,6 +61,7 @@ class Salting(models.Model):
         verbose_name=u'Дата виємки',
         null=True,
         editable=False
+
     )
 
     weight = models.CharField(
@@ -81,7 +81,7 @@ class Salting(models.Model):
     )
 
     def __unicode__(self):
-        return u'%s, %s' % (self.date_salting, self.name_fish)
+        return u'%s' % (self.id)
 
     def save(self, *args, **kwargs):
         deltaSalting = datetime.timedelta(days=int(self.required_salting))

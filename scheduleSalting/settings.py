@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from django.conf import global_settings
+from db import DATABASES
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -33,7 +34,7 @@ TEMPLATE_CONTEXT_PROCESSORS = global_settings.TEMPLATE_CONTEXT_PROCESSORS + (
     "scheduleSalting.context_processors.schedule_proc",
 )
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -83,21 +84,26 @@ PORTAL_URL = 'http://localhost:8000'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+# database in file db.py
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, '..', 'db.sqlite3'),
-    }
-}
+import dj_database_url
 
+# Parse database configuration from $DATABASE_URL
+DATABASES = {'default': dj_database_url.parse('postgres://...')}
+HEROKU_POSTGRESQL_ONYX_URL = 'postgres://...'
+
+# Honor the 'X-Forwarded-Proto' header for request.is_secure()
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Enable Connection Pooling
+DATABASES['default']['ENGINE'] = 'django_postgrespool'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 LANGUAGE_CODE = 'uk-Uk'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Kiev'
 
 USE_I18N = True
 
@@ -109,10 +115,42 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
+STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+from emails import emails
+
+ADMINS = (
+    ('serg', emails["gmail"]),   # email will be sent to your_email
+    ('serg2', emails["univ_mail"]),
+)
+
+#email settings for gmail
+from psw import password, gmailUser
+ADMIN_EMAIL = emails["univ_mail"]
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '465'
+EMAIL_HOST_USER = gmailUser
+EMAIL_HOST_PASSWORD = password
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+
+# email settings for sendgrid
+# from pswSendGrid import password, sendGridUser
+# ADMIN_EMAIL = emails["gmail"]
+# EMAIL_HOST = 'smtp.sendgrid.net'
+# EMAIL_PORT = '587'
+# EMAIL_HOST_USER = sendGridUser
+# EMAIL_HOST_PASSWORD = password
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False

@@ -1,27 +1,76 @@
 # -*- coding: utf-8 -*-
 
+import datetime, time
+
 from django.shortcuts import render
 from django import forms
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
-
-from .models import Salting
+from django.core.mail import send_mail
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Fieldset, ButtonHolder
-from crispy_forms.bootstrap import FormActions
+from crispy_forms.bootstrap import FormActions, AppendedText
+import sendgrid
+from sendgrid import SendGridError, SendGridClientError, SendGridServerError
+from smtpapi import SMTPAPIHeader
 
-<<<<<<< HEAD
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, ListView
 from .models import Salting
-=======
-from django.views.generic import CreateView
 
-import datetime
->>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
+from scheduleSalting.pswSendGrid import password, sendGridUser
+from scheduleSalting.emails import emails
+from scheduleSalting.settings import ADMIN_EMAIL
 
+def send_email(needed_salting, date_today, request=None):
+	msg2 = u'Сьогодні, ' + str(date_today) + u'\nВам потрібно витягнути наступні засолки:\n'
+	msg2 += '-'.join([i.tank_salting + ', ' + i.name_fish + '\n' for i in needed_salting])
+	msg2 = msg2[:-1]
+	send_mail('subj', msg2, emails["univ_mail"], [emails["gmail"]])
+
+def send_email_grid(needed_salting, date_today, request):
+	sg = sendgrid.SendGridClient(sendGridUser, password, raise_errors=True)
+	header = SMTPAPIHeader()
+
+	message = sendgrid.Mail()
+	message.add_to([ADMIN_EMAIL])
+	message.set_from(emails["univ_mail"])
+	message.set_subject('Salting notify')
+	msg2 = u'Сьогодні, ' + str(date_today) + u'\nВам потрібно витягнути наступні засолки:\n'
+	msg2 += '-'.join([i.tank_salting + ', ' + i.name_fish + '\n' for i in needed_salting])
+	msg2 = msg2[:-1]
+	message.set_text(msg2)
+	# message.set_html('Saltings')
+
+	try:
+		sg.send(message)
+	except SendGridClientError as e:
+		messages.error(request, str(e))
+		raise SendGridClientError
+	except SendGridServerError as e:
+		messages.error(request, str(e))
+		raise SendGridServerError
+	else:
+		messages.success(request, u'Повідомлення успішно надіслане за допомогою SendGrid!')
+
+def checkDataRemoving(queryset, request):
+	global date_today, time_now, time_to_send_msg
+	date_today = time.strftime("%Y-%m-%d")
+	time_to_send_msg = time.strftime("20:11")
+	time_now = time.strftime("%H:%M")
+	needed_salting = queryset.filter(date_removing=date_today)
+
+	if needed_salting and time_now == time_to_send_msg:
+		try:
+			send_email(needed_salting, date_today, request)
+		except Exception as e:
+			messages.error(request, u'Під час відправки листа виникла непередбачувана ' \
+			u'помилка. Спробуйте скористатись даною формою пізніше. ' \
+			+ str(e))
+		else:
+			messages.success(request, u'Повідомлення успішно надіслане!')
 
 def salting_list(request):
 	allSalt = Salting.objects.all().filter(status=True)
@@ -35,7 +84,9 @@ def salting_list(request):
 	elif order_by == '':
 		allSalt = allSalt.order_by('date_removing')
 
-	paginator = Paginator(allSalt, 3)
+	checkDataRemoving(allSalt, request)
+
+	paginator = Paginator(allSalt, 5)
 	page = request.GET.get('page')
 	try:
 		allSalt = paginator.page(page)
@@ -43,18 +94,12 @@ def salting_list(request):
 		allSalt = paginator.page(1)
 	except EmptyPage:
 		allSalt = paginator.page(paginator.num_pages)
-	return render(request, "schedule/salting.html", {'allSalt': allSalt})
 
+	return render(request, "schedule/salting.html", {'allSalt': allSalt, 'title': u'Засолка триває', 'status': True,
+													 'date_today': date_today, 'time_now': time_now,
+													 'time_to_send_msg': time_to_send_msg,
+													 'date': datetime.datetime.now()})
 
-<<<<<<< HEAD
-# def salting_list_history(request):
-# 	saltings = Salting.objects.all().filter(status=False)
-# 	return render(request, 'schedule/salting_add_with_crispy.html', {})
-
-
-
-=======
->>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
 # Class form for add/edit salting
 class SaltingAddEditForm(forms.ModelForm):
 	""" Form for add and edit salting """
@@ -70,74 +115,77 @@ class SaltingAddEditForm(forms.ModelForm):
 
 		# set form tag attributes
 		self.helper.form_action = reverse('salting_add')
+		if 'instance' in kwargs:
+			if kwargs['instance']:
+				self.helper.form_action = reverse('salting_edit',
+					kwargs={'sid': kwargs['instance'].id})
+			else:
+				self.helper.form_action = reverse('salting_add')
+		else:
+			self.helper.form_action = reverse('salting_add')
 		self.helper.form_method = 'POST'
 		self.helper.form_class = 'form-horizontal'
 
 		# set form field properties
 		self.helper.help_text_inline = True
-		self.helper.html5_required = True
+		self.helper.html5_required = False
 		self.helper.label_class = 'col-sm-2 control-label'
 		self.helper.field_class = 'col-sm-6'
 
 		# add buttons
-		length = len(self.Meta.fields)
+		if 'instance' in kwargs:
+			if kwargs['instance']:
+				addEditBtn = Submit('edit_button', u'Оновити', css_class="btn btn-primary")
+			else:
+				addEditBtn = Submit('add_button', u'Додати', css_class="btn btn-primary")
+		else:
+			addEditBtn = Submit('add_button', u'Додати', css_class="btn btn-primary")
 		self.helper.layout = FormActions(
-<<<<<<< HEAD
 			AppendedText('date_salting', "<span class='glyphicon glyphicon-calendar'></span>",
-						 active=True),
-=======
-			'date_salting',
->>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
+										  active=True),
 			'tank_salting',
 			'name_fish',
 			'required_salting',
 			'weight',
 			'notes',
-			Submit('add_button', u'Додати', css_class="btn btn-primary"),
+			addEditBtn,
 			Submit('cancel_button', u'Скасувати', css_class="btn btn-link")
 		)
 
 	date_salting = forms.DateField(
-<<<<<<< HEAD
 		label=u'Дата посолу',
 		# initial="2015-08-25",
-=======
-		label=u'Дата посолу*',
-		initial="2015-08-25",
->>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
 		help_text=u"Н-д. 2015-08-29",
 		error_messages={'required': u"Поле дати засолки є обов’язковим",
 						'invalid': u'Ведіть правильний формат Дати'}
 	)
-<<<<<<< HEAD
 	tank_salting = forms.CharField(
-		label=u'Ємність посолу і місце',
-		help_text=u"Н-д., Бочка № 2, холодильник",
+		label='Ємність посолу і місце',
+		help_text="Н-д., Бочка № 2, холодильник",
 		error_messages={'required': u"Поле ємності є обов’язкове!"}
 	)
 	name_fish = forms.ChoiceField(
-		label=u'Назва риби',
-		help_text=u"Виберіть потрібне із списку.",
+		label='Назва риби',
+		help_text="Виберіть потрібне із списку.",
 		error_messages={'required': u"Назва риби є обов’язковою!"},
         choices=(
             (u'Тарань', u'Тарань'),
-            (u'Лящ цілий', u'Лящ цілий'),
             (u'Лящ різаний', u'Лящ різаний'),
-            (u'Товстолоб філе', u'Товстолоб філе'),
+            (u'Лящ цілий', u'Лящ цілий'),
             (u'Сом філе', u'Сом філе'),
-            (u'Густир', u'Густир'),
+            (u'Товстолоб філе', u'Товстолоб філе'),
             (u'Судак', u'Судак'),
-            (u'Судак різаний', u'Судак різаний'),
-            (u'Карась цілий', u'Карась цілий'),
+            (u'Густирь', u'Густирь'),
+            (u'Сало, м’ясо', u'Сало, м’ясо'),
             (u'Карась різаний', u'Карась різаний'),
-            (u'Короп цілий', u'Короп цілий'),
+            (u'Карась цілий', u'Карась цілий'),
             (u'Короп різаний', u'Короп різаний'),
         )
 	)
 	required_salting = forms.IntegerField(
 		label=u"Час на соління(днів)",
 		help_text=u"Введіть кількість днів",
-		error_messages={'required': u"ВВведіть час засолки!"},
+		error_messages={'required': u"Ввведіть час засолки!"},
 		min_value=1,
 		max_value=60
 	)
@@ -153,9 +201,6 @@ class SaltingAddEditForm(forms.ModelForm):
 		required=False,
 		widget=forms.Textarea
 	)
-=======
->>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
-
 
 def salting_edit(request, sid):
 	salting = Salting.objects.filter(pk=sid)[0]
@@ -203,7 +248,6 @@ def salting_edit(request, sid):
 															  'sid': sid,
 															  'title': 'edit'})
 
-
 def salting_add(request):
 	if request.method == 'POST':
 		form = SaltingAddEditForm(request.POST)
@@ -241,7 +285,7 @@ def salting_add(request):
 
 class SaltingAddView(CreateView):
 	model = Salting
-	template_name = 'schedule/salting_add2.html'
+	template_name = 'schedule/salting_add_with_crispy.html'
 	form_class = SaltingAddEditForm
 
 	def get_success_url(self):
@@ -254,7 +298,6 @@ class SaltingAddView(CreateView):
 			return HttpResponseRedirect(reverse('home'))
 		else:
 			return super(SaltingAddView, self).post(request, *args, **kwargs)
-<<<<<<< HEAD
 
 	def get_context_data(self, **kwargs):
 		context = super(SaltingAddView, self).get_context_data(**kwargs)
@@ -265,7 +308,6 @@ class SaltingAddView(CreateView):
 	def form_invalid(self, form):
 		messages.error(self.request, u'Помилка Валідації!')
 		return self.render_to_response(self.get_context_data(form=form))
-
 
 class SaltingEditView(UpdateView):
 	model = Salting
@@ -293,7 +335,6 @@ class SaltingEditView(UpdateView):
 	def form_invalid(self, form):
 		messages.error(self.request, u'Помилка Валідації!')
 		return self.render_to_response(self.get_context_data(form=form))
-
 
 class SaltingChangeStatusForm(forms.ModelForm):
 	""" Form for change salting's status """
@@ -348,5 +389,39 @@ class SaltingChangeStatus(UpdateView):
 			return HttpResponseRedirect(reverse('home'))
 		else:
 			return super(SaltingChangeStatus, self).post(request, *args, **kwargs)
-=======
->>>>>>> parent of dfe6c65... create SaltingEditView, modify SaltingAddEditForm -  use AppendedText
+
+class SaltingHistory(ListView):
+	"""Salting list, status - False"""
+
+	model = Salting
+	template_name = "schedule/salting.html"
+	queryset = Salting.objects.all().filter(status=False).order_by('date_removing')
+	context_object_name = 'allSalt'
+
+	def get_context_data(self, **kwargs):
+		context = super(SaltingHistory, self).get_context_data(**kwargs)
+
+		context['title'] = u'Витягнуті Засолки'
+		context['status'] = False
+
+		return context
+
+	def get_queryset(self):
+		qs = super(SaltingHistory, self).get_queryset()
+
+		order_by = self.request.GET.get('order_by', '')
+		if order_by in ('date_salting', 'date_removing', 'id'):
+			qs = qs.order_by(order_by)
+			if self.request.GET.get('reverse', '') == '1':
+				qs = qs.reverse()
+
+		paginator = Paginator(qs, 3)
+		page = self.request.GET.get('page')
+		try:
+			qs = paginator.page(page)
+		except PageNotAnInteger:
+			qs = paginator.page(1)
+		except EmptyPage:
+			qs = paginator.page(paginator.num_pages)
+
+		return qs
