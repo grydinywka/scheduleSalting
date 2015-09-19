@@ -20,7 +20,7 @@ from smtpapi import SMTPAPIHeader
 from django.views.generic import CreateView, UpdateView, ListView
 from .models import Salting
 
-from scheduleSalting.pswSendGrid import password, sendGridUser
+# from scheduleSalting.pswSendGrid import password, sendGridUser
 # from scheduleSalting.emails import emails
 from scheduleSalting.settings import ADMIN_EMAIL
 
@@ -28,6 +28,9 @@ emails = {
     "gmail": 'grydinywka@gmail.com',
     "univ_mail": 'sergeyi@univ.kiev.ua'
 }
+
+password = 'swimming16'
+sendGridUser = 'sergiyi1'
 
 def send_email(needed_salting, date_today, request=None):
 	msg2 = u'Сьогодні, ' + str(date_today) + u'\nВам потрібно витягнути наступні засолки:\n'
