@@ -1,0 +1,42 @@
+#footer {
+    border-top: 1px solid #dddddd;
+    padding-top: 10px;
+}
+
+#title {
+    vertical-align: middle;
+    text-align: left;
+}
+
+#add_salting {
+    vertical-align: middle !important;
+    text-align: left;
+    margin: 20px 0px 10px;
+}
+
+div {
+    border: 0px solid blue;
+}
+
+div.col-sm-3 {
+    text-align: right;
+}
+ul.errorlist {
+    text-align: left;
+    color: #a94442;
+}
+
+.table tbody > tr.success1 {
+    background-color: #FF7F50 !important;
+}
+
+.table tbody > tr.success1:hover {
+    background-color: #E9967A !important;
+}
+
+.table tbody tr > td.success2 {
+    background-color: #F5DEB3 !important;
+}
+.table tbody tr:hover > td.success2 {
+    background-color: #D2B48C !important;
+}

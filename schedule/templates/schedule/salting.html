@@ -11,7 +11,7 @@
 {% if status %}
 <div class="col-xs-4" id="add_salting">
 	<!--  Add Student Button  -->
-	<a class="btn btn-primary" href="{% url "salting_add" %}">Додати Засолку</a>
+	<a class="btn btn-primary" href="{% url 'salting_add' %}">Додати Засолку</a>
 </div>
 {% endif %}
 {% endblock add_btn %}
@@ -129,5 +129,5 @@
 {% endblock nav %}
 
 {% block extra_js %}
-	<script src="{% static "js/reload.js" %}"></script>
+	<script src="{% static 'js/reload.js' %}"></script>
 {% endblock extra_js %}
