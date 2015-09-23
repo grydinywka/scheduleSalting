@@ -11,10 +11,17 @@
 {% if status %}
 <div class="col-xs-4" id="add_salting">
 	<!--  Add Student Button  -->
-	<a class="btn btn-primary" href="{% url "salting_add" %}">Додати Засолку</a>
+	<a class="btn btn-primary" href="{% url 'salting_add' %}">Додати Засолку</a>
 </div>
 {% endif %}
 {% endblock add_btn %}
+
+{% block time %}
+{% if status %}
+	<p>{{ time_now }} - час на цей момент</p>
+	<p>{{ reminder.time_reminding }} - час відправки листа, <a href="{% url 'reminder_edit' reminder.id %}">Змінити</a></p>
+{% endif %}
+{% endblock time %}
 
 {% block content %}
 {% if status %}
@@ -22,8 +29,6 @@
 {% else %}
 	{% url 'salting_history' as the_url %}
 {% endif %}
-<p>{{ time_now }}</p>
-<p>{{ time_to_send_msg }}</p>
 
 
 <table class="table table-hover table-striped">

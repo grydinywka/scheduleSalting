@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import include, url, patterns
 from django.contrib import admin
 
-from schedule.views import SaltingAddView, SaltingEditView, SaltingChangeStatus, SaltingHistory
+from schedule.views import SaltingAddView, SaltingEditView, SaltingChangeStatus, SaltingHistory, ReminderEditView
 
 urlpatterns = patterns('',
     url(r'^$', 'schedule.views.salting_list', name="home"),
@@ -29,6 +29,9 @@ urlpatterns = patterns('',
     url(r'^salting/(?P<sid>\d+)/edit/$', SaltingEditView.as_view(), name="salting_edit"),
 
     url(r'^salting/(?P<sid>\d+)/change_status/$', SaltingChangeStatus.as_view(), name="salting_change_status"),
+
+    # reminder edit url
+    url(r'^reminder/(?P<rid>\d+)/edit/$', ReminderEditView.as_view(), name="reminder_edit"),
 
     url(r'^admin/', include(admin.site.urls)),
 )

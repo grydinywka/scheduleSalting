@@ -40,7 +40,7 @@
 					<ul class="nav nav-tabs" role="tablist">
 
 						<li role="presentation" {% url 'home' as the_url_home %}{% if request.path == the_url_home %}class="active"{% endif %}>
-							<a href="{% url "home" %}">Графік Засолки</a>
+							<a href="{% url 'home' %}">Графік Засолки</a>
 						</li>
 						<li role="presentation" {% url 'salting_history' as the_url_history %}{% if request.path ==	the_url_history %}class="active"{% endif %}>
 							<a href="{% url "salting_history" %}">Витягнуті засолки</a>
@@ -54,7 +54,7 @@
 
 			<!-- Start Main Page Content -->
 			<div class="row" id="content-colomns">
-				<div class="col-xs-12" id="content-colomn">
+				<div class="col-xs-12">
 
 					<!-- Status Message -->
 					{% block status_message %}
@@ -70,20 +70,27 @@
 			</div>
 
 			<div class="row">
-					<div class="col-xs-4"><h2 id="title">{% block title %}{% endblock title %}</h2></div>
+					<div class="col-xs-6"><h2 id="title">{% block title %}{% endblock title %}</h2></div>
 					{% block add_btn %}{% endblock add_btn %}
 					{% block data %}{% endblock data %}
 
 			</div>
 
-			<div class="row" id="content-colomn">
-				<div class="col-xs-12" id="content-colomn">
+			<!-- data for time reminder -->
+			<div class="row">
+				<div class="col-xs-12">
+					{% block time %}{% endblock time %}
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-xs-12">
 					{% block content %}{% endblock content %}
 				</div>
 			</div>
 
-			<div class="row" id="content-colomn">
-				<div class="col-xs-12" id="content-colomn">
+			<div class="row">
+				<div class="col-xs-12">
 					{% block nav %}{% endblock nav %}
 				</div>
 			</div>
