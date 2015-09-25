@@ -18,7 +18,7 @@ from sendgrid import SendGridError, SendGridClientError, SendGridServerError
 from smtpapi import SMTPAPIHeader
 
 from django.views.generic import CreateView, UpdateView, ListView
-from .models import Salting
+from .models import Salting, Reminder
 
 # from scheduleSalting.pswSendGrid import password, sendGridUser
 # from scheduleSalting.emails import emails
@@ -63,11 +63,8 @@ def send_email_grid(needed_salting, date_today, request):
 	else:
 		messages.success(request, u'Повідомлення успішно надіслане за допомогою SendGrid!')
 
-def checkDataRemoving(queryset, request):
-	global date_today, time_now, time_to_send_msg
-	date_today = time.strftime("%Y-%m-%d")
-	time_to_send_msg = time.strftime("20:11")
-	time_now = time.strftime("%H:%M")
+def checkDataRemoving(queryset, request, time_reminding, date_today, time_now):
+	time_to_send_msg = time_reminding.strftime("%H:%M")
 	needed_salting = queryset.filter(date_removing=date_today)
 
 	if needed_salting and time_now == time_to_send_msg:
@@ -82,6 +79,7 @@ def checkDataRemoving(queryset, request):
 
 def salting_list(request):
 	allSalt = Salting.objects.all().filter(status=True)
+	reminder = Reminder.objects.all().filter(pk=1)[0]
 
 	# try to order salting list
 	order_by = request.GET.get('order_by', '')
@@ -92,7 +90,9 @@ def salting_list(request):
 	elif order_by == '':
 		allSalt = allSalt.order_by('date_removing')
 
-	checkDataRemoving(allSalt, request)
+	date_today = time.strftime("%Y-%m-%d")
+	time_now = time.strftime("%H:%M")
+	checkDataRemoving(allSalt, request, reminder.time_reminding, date_today, time_now)
 
 	paginator = Paginator(allSalt, 5)
 	page = request.GET.get('page')
@@ -105,8 +105,7 @@ def salting_list(request):
 
 	return render(request, "schedule/salting.html", {'allSalt': allSalt, 'title': u'Засолка триває', 'status': True,
 													 'date_today': date_today, 'time_now': time_now,
-													 'time_to_send_msg': time_to_send_msg,
-													 'date': datetime.datetime.now()})
+													 'reminder': reminder})
 
 # Class form for add/edit salting
 class SaltingAddEditForm(forms.ModelForm):
@@ -433,3 +432,58 @@ class SaltingHistory(ListView):
 			qs = paginator.page(paginator.num_pages)
 
 		return qs
+
+class ReminderEditForm(forms.ModelForm):
+	""" Form for edit reminder """
+
+	class Meta:
+		model = Reminder
+		fields = ['time_reminding']
+
+	def __init__(self, *args, **kwargs):
+		super(ReminderEditForm, self).__init__(*args, **kwargs)
+
+		self.helper = FormHelper(self)
+
+		# set form tag attributes
+		self.helper.form_action = reverse('reminder_edit',
+										  kwargs={'rid': kwargs['instance'].id})
+		self.helper.form_method = 'POST'
+		self.helper.form_class = 'form-horizontal'
+
+		# set form field properties
+		self.helper.help_text_inline = True
+		self.helper.html5_required = True
+		self.helper.label_class = 'col-sm-2 control-label'
+		self.helper.field_class = 'col-sm-6'
+
+		# add buttons
+		self.helper.layout = FormActions(
+			'time_reminding',
+			Submit('edit_button', u'ОК', css_class="btn btn-primary"),
+			Submit('cancel_button', u'Скасувати', css_class="btn btn-link")
+		)
+
+
+class ReminderEditView(UpdateView):
+	model = Reminder
+	template_name = 'schedule/reminder_edit_with_crispy.html'
+	pk_url_kwarg = 'rid'
+	form_class = ReminderEditForm
+
+	def get_success_url(self):
+		messages.success(self.request, u'Нагадування успішно встановлено на %s!' % str(self.object.time_reminding))
+		return reverse('home')
+
+	def post(self, request, *args, **kwargs):
+		if request.POST.get('cancel_button'):
+			messages.info(self.request, u'Редагування часу відправки листа відмінено!')
+			return HttpResponseRedirect(reverse('home'))
+		else:
+			return super(ReminderEditView, self).post(request, *args, **kwargs)
+
+	def get_context_data(self, **kwargs):
+		context = super(ReminderEditView, self).get_context_data(**kwargs)
+		context['title'] = u'Редагевання нагадування'
+
+		return context

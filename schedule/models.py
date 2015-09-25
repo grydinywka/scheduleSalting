@@ -87,3 +87,30 @@ class Salting(models.Model):
         deltaSalting = datetime.timedelta(days=int(self.required_salting))
         self.date_removing = self.date_salting + deltaSalting
         super(Salting, self).save(*args, **kwargs)
+
+def validate_time(value):
+    import time
+    from django.core.exceptions import ValidationError
+
+    try:
+        time.strptime(value, "%H:%M")
+    except:
+        pass
+
+
+class Reminder(models.Model):
+    """Reminder Model"""
+
+    class Meta(object):
+        verbose_name = u'Нагадування'
+        verbose_name_plural = u'Нагадування'
+
+    time_reminding = models.TimeField(
+        blank=False,
+        verbose_name=u'Час відправлення листа на пошту',
+        null=True
+    )
+
+    def __unicode__(self):
+        return u'%s' % (self.time_reminding)
+
