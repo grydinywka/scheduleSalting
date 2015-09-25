@@ -102,8 +102,8 @@ import dj_database_url
 DATABASES['default'] = dj_database_url.config()
 
 # Enable Connection Pooling
-DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
-DATABASES['default']['NAME'] = 'saltings_db'
+# DATABASES['default']['ENGINE'] = 'django.db.backends.postgresql_psycopg2'
+# DATABASES['default']['NAME'] = 'saltings_db'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
